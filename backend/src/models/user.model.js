@@ -11,9 +11,11 @@ const userSchema = new mongoose.Schema(
             type: String,
             unique: true,
         },
-        username: {
+        firstName: {
             type: String,
-            unique: true,
+        },
+        lastName: {
+            type: String,
         },
         role: {
             type: String,

@@ -107,6 +107,74 @@ export const createPost = asyncHandler(async (req, res) => {
     res.status(201).json({ post: newPost, message: "Annonce créée avec succès." });
 });
 
+export const createPostTest = asyncHandler(async (req, res) => {
+    const { userId } = getAuth(req);
+    const { produit, typeActivite, quantite, prix, unite, description, region, DisponibilityDate, } = req.body;
+
+    // `req.files` contiendra le tableau des fichiers uploadés par multer.array()
+    const imageFiles = req.files;
+
+    const user = await User.findOne({ clerkId: userId });
+    //changemet ici
+    if (!user) {
+        return res.status(403).json({ message: "Non autorisé : Seuls les vendeurs peuvent créer des annonces." });
+    }
+
+    // Validation des champs requis
+    if (!produit || !typeActivite || !quantite || !prix || !unite || !DisponibilityDate || !region) {
+        return res.status(400).json({ message: "Champs requis manquants pour l'annonce." });
+    }
+
+    if (!imageFiles || imageFiles.length === 0) {
+        return res.status(400).json({ message: "Au moins une image est requise pour l'annonce." });
+    }
+    if (imageFiles.length > 3) {
+        return res.status(400).json({ message: "Vous ne pouvez uploader un maximum de 3 images." });
+    }
+
+    const photosUrls = [];
+
+    // Uploader chaque image vers Cloudinary
+    for (const file of imageFiles) {
+        try {
+            // Convertir le buffer de l'image en base64
+            const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+
+            // Uploader vers Cloudinary
+            const uploadResponse = await cloudinary.uploader.upload(base64Image, {
+                folder: "farm_connect_posts", // Nom du dossier dans Cloudinary pour tes posts
+                resource_type: "image",
+                transformation: [ // Options de transformation pour optimiser les images
+                    { width: 800, height: 600, crop: "limit" }, // Redimensionner pour un affichage web/mobile
+                    { quality: "auto" },
+                    { format: "auto" },
+                ],
+            });
+            photosUrls.push(uploadResponse.secure_url);
+        } catch (uploadError) {
+            console.error("Erreur d'upload Cloudinary pour un fichier:", uploadError);
+            return res.status(500).json({ error: "Échec de l'upload d'une ou plusieurs images." });
+        }
+    }
+
+    // Créer un nouveau post dans la base de données avec les URLs Cloudinary
+    const newPost = await Post.create({
+        user: user._id,
+        produit,
+        typeActivite,
+        quantite,
+        prix,
+        unite,
+        description,
+        region,
+        photos: photosUrls,
+        DisponibilityDate: new Date(DisponibilityDate),
+        statut: 'actif',
+    });
+
+    res.status(201).json({ post: newPost, message: "Annonce créée avec succès." });
+});
+
 export const searchPosts = asyncHandler(async (req, res) => {
     const { query, typeActivite, region, minPrice, maxPrice, availability } = req.query;
     let filter = { status: 'actif' };
