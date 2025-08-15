@@ -3,7 +3,7 @@ import { connectDB } from './config/db.js';
 import { ENV } from './config/env.js';
 import cors from 'cors';
 import { clerkMiddleware } from "@clerk/express";
-import { arcjetMiddleware } from "./middlewares/arcjet.middleware.js";
+// import { arcjetMiddleware } from "./middlewares/arcjet.middleware.js";
 
 import userRoutes from "./routes/user.route.js";
 import postRoutes from "./routes/post.route.js";
@@ -17,7 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use(clerkMiddleware());
-app.use(arcjetMiddleware);
+// app.use(arcjetMiddleware);
 
 app.get("/", (req, res) => res.send('Hello World!'));
 

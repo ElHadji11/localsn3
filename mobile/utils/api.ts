@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ||
-    "https://localsn3-b985.vercel.app/api";
+    "https://localsn3-b63llua7a-babacarthior19-gmailcoms-projects.vercel.app/api";
 // ! 🔥 localhost api would not work on your actual physical device
 // const API_BASE_URL = "http://localhost:5001/api";
 
