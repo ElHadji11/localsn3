@@ -9,6 +9,7 @@ import {
     getHomepagePosts,
     getPostById,
     createPost,
+    createPostTest,
     deletePost,
     addFavorite,
     removeFavorite,
