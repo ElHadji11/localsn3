@@ -10,26 +10,16 @@ export const useUserSync = () => {
     const syncUserMutation = useMutation({
         mutationFn: () => userApi.syncUser(api),
         onSuccess: (response: any) => console.log("User synced successfully:", response.data.user),
-        onError: (error) => {
-            // Handle network errors gracefully - don't show error for network issues
-            if (error?.message?.includes('Network Error')) {
-                console.log("User sync skipped - backend not available");
-            } else if (error?.message?.includes('API not configured')) {
-                console.log("User sync skipped - no API configured");
-            } else {
-                console.error("User sync failed:", error);
-            }
-        },
-        retry: false, // Don't retry on network errors
+        onError: (error) => console.error("User sync failed:", error),
     });
 
     // auto-sync user when signed in
     useEffect(() => {
-        // Only sync if user is signed in, not already synced, and API is available
-        if (isSignedIn && !syncUserMutation.data && api) {
+        // if user is signed in and user is not synced yet, sync user
+        if (isSignedIn && !syncUserMutation.data) {
             syncUserMutation.mutate();
         }
-    }, [isSignedIn, api]);
+    }, [isSignedIn]);
 
     return null;
 };
