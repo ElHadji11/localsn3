@@ -9,12 +9,15 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
+    Image,
 } from 'react-native';
 import { useSignIn } from '@clerk/clerk-expo';
 import { router } from 'expo-router';
+import { useOAuth } from '@/hooks/useOAuth';
 
 export default function SignInScreen() {
     const { signIn, setActive, isLoaded } = useSignIn();
+    const { isLoading: oauthLoading, handleOAuth } = useOAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -114,11 +117,50 @@ export default function SignInScreen() {
                     </View>
 
                     {/* Forgot Password */}
-                    <TouchableOpacity className="mt-4">
+                    <TouchableOpacity
+                        className="mt-4"
+                        onPress={() => router.push('/(auth)/forgot-password')}
+                    >
                         <Text className="text-blue-600 text-center font-medium">
                             Forgot your password?
                         </Text>
                     </TouchableOpacity>
+
+                    {/* Divider */}
+                    <View className="flex-row items-center my-8">
+                        <View className="flex-1 h-px bg-gray-300" />
+                        <Text className="mx-4 text-gray-500">or</Text>
+                        <View className="flex-1 h-px bg-gray-300" />
+                    </View>
+
+                    {/* OAuth Buttons */}
+                    <View className="space-y-3">
+                        <TouchableOpacity
+                            className="flex-row items-center justify-center bg-white border border-gray-300 rounded-lg py-3 px-6"
+                            onPress={() => handleOAuth("oauth_google")}
+                            disabled={oauthLoading}
+                            style={{
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 1 },
+                                shadowOpacity: 0.1,
+                                shadowRadius: 2,
+                                elevation: 2,
+                            }}
+                        >
+                            {oauthLoading ? (
+                                <ActivityIndicator size="small" color="#4285F4" />
+                            ) : (
+                                <View className="flex-row items-center justify-center">
+                                    <Image
+                                        source={require("../../assets/images/google.png")}
+                                        className="size-10 mr-3"
+                                        resizeMode="contain"
+                                    />
+                                    <Text className="text-black font-medium text-base">Continue with Google</Text>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    </View>
 
                     {/* Sign Up Link */}
                     <View className="mt-8 flex-row justify-center">
@@ -131,4 +173,4 @@ export default function SignInScreen() {
             </ScrollView>
         </KeyboardAvoidingView>
     );
-}
+} 
